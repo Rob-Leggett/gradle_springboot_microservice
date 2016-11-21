@@ -1,0 +1,163 @@
+buildscript {
+  System.setProperty("catalina.base", "build")
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:${dependencyVersionSpringBootGradlePlugin}")
+    classpath("net.researchgate:gradle-release:${dependencyVersionGradleReleasePlugin}")
+    classpath("org.owasp:dependency-check-gradle:${dependencyVersionGradleDependencyCheckPlugin}")
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+// IDE plugins
+apply plugin: 'eclipse-wtp'
+apply plugin: 'idea'
+
+// Java dev plugins
+apply plugin: 'war'
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'jdepend'
+apply plugin: 'spring-boot'
+apply plugin: 'maven'
+apply plugin: 'groovy'
+
+// code quality plugins
+apply plugin: 'checkstyle'
+
+//dependency check plugin
+apply plugin: 'org.owasp.dependencycheck'
+
+configurations {
+}
+
+sourceSets {
+  test {
+    resources {
+      srcDir 'src/config'
+    }
+  }
+}
+
+checkstyle {
+  toolVersion = "7.1.1"
+}
+
+dependencyCheck {
+  failBuildOnCVSS=11
+  suppressionFile='config/dependencycheck/suppressions.xml'
+}
+
+// project artifact info
+group = groupId
+archivesBaseName = artifactId
+version = 'SNAPSHOT'
+
+// configure plugins
+
+jacoco {
+  toolVersion = "${dependencyVersionJacocoTool}"
+  reportsDir = file("${buildDir}/jacocoReportDir")
+}
+
+def excludedSources = ['**/model/**']
+
+test {
+  jacoco {
+    excludes = excludedSources
+    append = false
+    destinationFile = file("$buildDir/jacoco/jacoco.exec")
+    classDumpFile = file("$buildDir/jacoco/classpathdumps")
+  }
+
+  testLogging {
+    events "passed", "skipped", "failed"
+  }
+}
+
+jacocoTestReport {
+  doFirst {
+    classDirectories = fileTree(dir: "${buildDir}/classes/main/").exclude(excludedSources)
+  }
+
+  reports {
+    xml.enabled false
+    csv.enabled false
+    html.destination "${buildDir}/jacocoHtml"
+  }
+}
+
+bootRun {
+  systemProperties = System.properties
+  doFirst {
+    systemProperty "spring.profiles.active", "local"
+  }
+}
+
+// configure project specific properties/dependencies
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+// Add a provided configuration.
+// This is used to add jar dependencies that are needed for compile time only
+// but should not be bundled in the war/ear projects.
+configurations { provided }
+sourceSets {
+  main {
+    compileClasspath += [configurations.provided]
+  }
+
+  test {
+    compileClasspath += [configurations.provided]
+    runtimeClasspath += [configurations.provided]
+    groovy {
+      srcDirs = ['src/test/groovy/functional', 'src/test/groovy/unit']
+    }
+  }
+}
+// optional: if using 'eclipse' plugin
+eclipse.classpath.plusConfigurations += [configurations.provided]
+
+ext {
+  dependencyVersionJetty9='9.3.9.v20160517'
+  dependencyVersionGroovy='2.4.6'
+  dependencyVersionGroovyHttpBuilder='0.7.1'
+  dependencyVersionApacheHttp='4.3.5'
+  dependencyVersionMockito='1.10.19'
+  dependencyVersionAssertj='3.4.1'
+  dependencyVersionSwagger2='2.4.0'
+}
+
+dependencies {
+
+  provided 'javax.servlet:javax.servlet-api:3.1.0'
+
+  // swagger
+  compile("io.springfox:springfox-swagger2:${dependencyVersionSwagger2}")
+  compile("io.springfox:springfox-staticdocs:${dependencyVersionSwagger2}")
+
+  // dependencies
+  compile("org.springframework.boot:spring-boot-starter-web:${dependencyVersionSpringBoot}")
+  compile("commons-io:commons-io:${dependencyVersionCommonsIo}")
+  compile("com.javaslang:javaslang:${dependencyVersionJavaslang}")
+
+  // test dependencies
+  testCompile "org.springframework.boot:spring-boot-starter-test:${dependencyVersionSpringBoot}"
+  testCompile "org.mockito:mockito-all:${dependencyVersionMockito}"
+  testCompile "org.assertj:assertj-core:${dependencyVersionAssertj}"
+  testCompile "org.codehaus.groovy:groovy-all:${dependencyVersionGroovy}"
+  testCompile "org.codehaus.groovy.modules.http-builder:http-builder:${dependencyVersionGroovyHttpBuilder}"
+  testCompile "org.apache.httpcomponents:httpclient:${dependencyVersionApacheHttp}"
+  testCompile "org.apache.httpcomponents:httpmime:${dependencyVersionApacheHttp}"
+  testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+  testCompile 'org.spockframework:spock-spring:1.0-groovy-2.4'
+  testCompile 'cglib:cglib-nodep:3.2.2'
+}

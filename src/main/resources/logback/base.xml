@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Base logback configuration provided for compatibility with Spring Boot 1.1
+-->
+
+<included>
+
+    <springProperty scope="context" name="app.artifactId" source="application.log.file-name"/>
+
+    <include resource="logback/console-appender.xml" />
+    <include resource="logback/file-appender.xml" />
+    <include resource="logback/file-error-appender.xml" />
+
+    <root level="INFO">
+        <appender-ref ref="FILE" />
+    </root>
+
+</included>

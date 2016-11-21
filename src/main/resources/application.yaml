@@ -1,0 +1,51 @@
+# Swagger Configuration
+api:
+  title: "Microservice - Payslips"
+  description: "Microservice to support customers viewing their payslips"
+  version: 1.0
+
+# Taxable Income
+# previous represents before 1-July with the year being last year to this year
+# current represents from and including 1-July with the year being this year to next year
+tax:
+  rates:
+    previous:
+      - min: 0
+        max: 18200
+        offset: 0
+        cents: 0.00
+      - min: 18201
+        max: 37000
+        cents: 0.19
+        offset: 0
+      - min: 37001
+        max: 80000
+        cents: 0.325
+        offset: 3572
+      - min: 80001
+        max: 180000
+        cents: 0.37
+        offset: 17547
+      - min: 180001
+        cents: 0.45
+        offset: 54547
+    current:
+      - min: 0
+        max: 18200
+        offset: 0
+        cents: 0.00
+      - min: 18201
+        max: 37000
+        cents: 0.19
+        offset: 0
+      - min: 37001
+        max: 80000
+        cents: 0.325
+        offset: 3572
+      - min: 80001
+        max: 180000
+        cents: 0.37
+        offset: 17547
+      - min: 180001
+        cents: 0.45
+        offset: 54547
