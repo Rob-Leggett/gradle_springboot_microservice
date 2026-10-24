@@ -1,5 +1,6 @@
 # Microservice - Payslip
-[![build](https://github.com/Rob-Leggett/gradle_springboot_microservice/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/Rob-Leggett/gradle_springboot_microservice/actions/workflows/build.yml)
+
+[![build](https://github.com/Rob-Leggett/gradle_springboot_microservice/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/Rob-Leggett/gradle_springboot_microservice/actions/workflows/build.yml) [![License](https://img.shields.io/github/license/Rob-Leggett/gradle_springboot_microservice)](LICENSE) [![Java 25](https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/25/) [![Gradle 9.8](https://img.shields.io/badge/Gradle-9.8-02303A?logo=gradle&logoColor=white)](https://gradle.org/) [![Spring Boot 4.1](https://img.shields.io/badge/Spring%20Boot-4.1-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 
 Supports employees retrieving there payslip information.
 
