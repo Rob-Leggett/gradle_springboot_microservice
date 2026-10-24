@@ -4,7 +4,6 @@ import au.com.example.microservice.payslip.exception.InvalidLineItemException;
 import au.com.example.microservice.payslip.model.Employee;
 import au.com.example.microservice.payslip.model.Income;
 import au.com.example.microservice.payslip.model.IncomeSummary;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +51,8 @@ public class IncomeSummaryMapper {
       final String gross = summary[GROSS];
       final String superannuation = summary[SUPERANNUATION];
 
-      if (StringUtils.isNotEmpty(firstName) && StringUtils.isNotEmpty(lastName)
-              && StringUtils.isNotEmpty(month) && StringUtils.isNotEmpty(gross) && StringUtils.isNotEmpty(superannuation)) {
+      if (!firstName.isEmpty() && !lastName.isEmpty()
+              && !month.isEmpty() && !gross.isEmpty() && !superannuation.isEmpty()) {
 
         final Employee employee = new Employee(firstName, lastName);
         final Income income = new Income(Integer.valueOf(gross), Integer.valueOf(superannuation));

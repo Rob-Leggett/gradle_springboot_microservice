@@ -4,14 +4,15 @@ import au.com.example.boot.starter.web.http.HttpStatusHelper;
 import au.com.example.boot.starter.web.http.ResponseBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.web.ErrorAttributes;
+import org.springframework.boot.web.error.ErrorAttributeOptions;
+import org.springframework.boot.webmvc.error.ErrorAttributes;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.Map;
 
@@ -37,28 +38,31 @@ public class DefaultErrorAttributes implements ErrorAttributes, HandlerException
     }
 
     /**
+     * Returns the error attributes, populated with the errors response for the current request status.
      *
-     * @param requestAttributes
-     * @param includeStackTrace
+     * @param webRequest
+     * @param options
      * @return
      */
     @Override
-    public Map<String, Object> getErrorAttributes(RequestAttributes requestAttributes, boolean includeStackTrace) {
-        HttpStatus status = HttpStatusHelper.getStatus(requestAttributes);
+    public Map<String, Object> getErrorAttributes(WebRequest webRequest, ErrorAttributeOptions options) {
+        HttpStatus status = HttpStatusHelper.getStatus(webRequest);
         return Collections.singletonMap("errors", responseBuilder.buildResponse(status.name(), status.getReasonPhrase()).getErrors());
     }
 
     /**
+     * Returns the error for the request, which is not exposed by these attributes.
      *
-     * @param requestAttributes
+     * @param webRequest
      * @return
      */
     @Override
-    public Throwable getError(RequestAttributes requestAttributes) {
+    public Throwable getError(WebRequest webRequest) {
         return null;
     }
 
     /**
+     * Logs the unexpected exception and lets the remaining resolvers handle it.
      *
      * @param request
      * @param response

@@ -1,5 +1,5 @@
 # Microservice - Payslip
-[![Build Status](https://travis-ci.org/Rob-Leggett/gradle_springboot_microservice.svg?branch=master)](https://travis-ci.org/Rob-Leggett/gradle_springboot_microservice)
+[![build](https://github.com/Rob-Leggett/gradle_springboot_microservice/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/Rob-Leggett/gradle_springboot_microservice/actions/workflows/build.yml)
 
 Supports employees retrieving there payslip information.
 
@@ -148,37 +148,56 @@ Ryan,Chen,MARCH,10000,2696,7304,1000
 
 The following is required to build:
 
-* gradle 2.14.1
-* Java 8 (Oracle)
+* Java 25 (e.g. Eclipse Temurin 25)
+* Gradle 9.8 is provided by the Gradle wrapper (`./gradlew`), no local install required
+
+The service is built with Spring Boot 4.1 (Spring Framework 7, Jakarta EE 11), springdoc-openapi 3 and
+tested with Spock 2.5 (Groovy 5) on the JUnit Platform.
 
 # Userful commands
 ## Build
-Run all unit and functional tests, and build a war file.
+Run checkstyle, all unit and functional tests, and build an executable war file.
 
-	gradle build
+	./gradlew build
 
 
 ## Run the server stand alone
 Useful during development. Needs to be manually restarted if the war changes.
 
-	gradle bootRun
+	./gradlew bootRun
 
-Locally logs will come out in the build/logs directory. This is set using a system property in the build.gradle file.
+Or run the executable war directly:
+
+	java -jar build/libs/payslip-microservice-SNAPSHOT.war
+
+Locally (via `bootRun`) logs will come out in the build/logs directory. This is set using a system property in the build.gradle file.
+When running the war directly, logs are written to `./logs` unless `-Dcatalina.base=<dir>` is supplied.
 You can tail the log file when running to startServer to get consistent logging in your terminal.
 
 ## Code Coverage
 
 To get code coverage run the following command after your build.
 
-	gradle jacocoTestReport
+	./gradlew jacocoTestReport
+
+The HTML report is written to `build/jacocoHtml`.
+
+## Dependency vulnerability check
+
+	./gradlew dependencyCheckAnalyze
+
+The OWASP dependency check requires an [NVD API key](https://nvd.nist.gov/developers/request-an-api-key)
+exported as the `NVD_API_KEY` environment variable.
 
 # Additional Information
 
-## Swagger
+## OpenAPI / Swagger UI
 
-http://localhost:8080/v2/api-docs
+The OpenAPI 3 document and Swagger UI are generated at runtime by [springdoc-openapi](https://springdoc.org/):
 
-http://localhost:8080/_admin/swagger/index.html
+http://localhost:8080/v3/api-docs
+
+http://localhost:8080/swagger-ui.html
 
 Donations
 ====================

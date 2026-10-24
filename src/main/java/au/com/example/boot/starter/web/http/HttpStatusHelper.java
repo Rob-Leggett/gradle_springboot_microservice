@@ -1,12 +1,11 @@
 package au.com.example.boot.starter.web.http;
 
-
-import javaslang.control.Try;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * {@code HttpStatusHelper} is a support class that returns the status for a request.
@@ -19,8 +18,13 @@ public final class HttpStatusHelper {
   }
 
   public static HttpStatus getStatus(HttpServletRequest request) {
-    return Try.of(() -> HttpStatus.valueOf((Integer) request.getAttribute("javax.servlet.error.status_code")))
-            .getOrElse(HttpStatus.INTERNAL_SERVER_ERROR);
+    if (request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE) instanceof Integer statusCode) {
+      HttpStatus status = HttpStatus.resolve(statusCode);
+      if (status != null) {
+        return status;
+      }
+    }
+    return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 
   public static HttpStatus getStatus(RequestAttributes requestAttributes) {

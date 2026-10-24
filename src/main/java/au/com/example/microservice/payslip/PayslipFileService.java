@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 /**
- *
+ * Converts payslip CSV files to and from income and payslip summaries.
  */
 public interface PayslipFileService {
 

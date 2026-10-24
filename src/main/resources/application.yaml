@@ -1,4 +1,8 @@
-# Swagger Configuration
+application:
+  log:
+    file-name: payslip-microservice
+
+# OpenAPI (springdoc) Configuration
 api:
   title: "Microservice - Payslips"
   description: "Microservice to support customers viewing their payslips"

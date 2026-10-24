@@ -8,13 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 
 /**
  * {@code ApplicationExceptionHandler} handles common exceptions that may be thrown by application
@@ -68,8 +71,17 @@ public final class ApplicationExceptionHandler {
   }
 
   @ExceptionHandler(Throwable.class)
-  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-  public Response handleExceptions(final Throwable e) {
+  public ResponseEntity<Response> handleExceptions(final Throwable e) {
+    if (e instanceof ErrorResponse errorResponse) {
+      // Spring MVC exceptions (e.g. no handler found, method not supported) carry their own client error status.
+      final HttpStatusCode statusCode = errorResponse.getStatusCode();
+      final HttpStatus status = HttpStatus.valueOf(statusCode.value());
+
+      LOG.debug("exception: {}, detail: {}", status.name(), e.getMessage());
+
+      return new ResponseEntity<>(responseBuilder.buildResponse(status.name(), status.getReasonPhrase()), statusCode);
+    }
+
         /*
          * Handles all other un-handled exceptions including
          * "Resource access exceptions" which wrap the Socket timeouts & Unknown
@@ -80,7 +92,7 @@ public final class ApplicationExceptionHandler {
     LOG.error("exception: {}, detail: {}", SYSTEM_ERROR, message);
     LOG.error("Unknown error occurred: " + e);
 
-    return responseBuilder.buildResponse(SYSTEM_ERROR, "Unknown error occured");
+    return new ResponseEntity<>(responseBuilder.buildResponse(SYSTEM_ERROR, "Unknown error occured"), HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
 }

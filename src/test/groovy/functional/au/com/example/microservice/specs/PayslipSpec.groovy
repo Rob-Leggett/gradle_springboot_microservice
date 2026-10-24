@@ -117,4 +117,24 @@ class PayslipSpec extends FunctionalSpec {
         data.errors[0].code == "VALIDATION_ERROR"
         data.errors[0].detail == "The line item entered in invalid Test,User,,9,JUNE, please update this entry before continuing"
     }
+
+    def "should return not found for an unknown path"() {
+        when:
+        get('payslip/unknown')
+
+        then:
+        assert getStatus() == 404
+        def data = getData()
+        data.errors[0].code == "NOT_FOUND"
+    }
+
+    def "should return method not allowed for an unsupported request method"() {
+        when:
+        get('payslip/monthly/summary')
+
+        then:
+        assert getStatus() == 405
+        def data = getData()
+        data.errors[0].code == "METHOD_NOT_ALLOWED"
+    }
 }

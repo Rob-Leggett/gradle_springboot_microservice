@@ -1,12 +1,12 @@
 package au.com.example.boot.starter.web.http;
 
-import javaslang.control.Try;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 
 import java.util.Locale;
+import java.util.Objects;
 
 import static java.util.Arrays.stream;
-import static javaslang.control.Try.success;
 
 /**
  * {@code ErrorCodeResolver} is a support class that resolves error codes and returns them.
@@ -25,10 +25,17 @@ public class ErrorCodeResolver {
 
   public String resolve(String[] codes) {
     return stream(codes)
-            .map(code -> Try.of(() -> messageSource.getMessage(code + ".code", EMPTY_ARRAY, Locale.ENGLISH)))
-            .filter(Try::isSuccess)
+            .map(this::resolveCode)
+            .filter(Objects::nonNull)
             .findFirst()
-            .orElse(success("CONSTRAINT_VIOLATION"))
-            .get();
+            .orElse("CONSTRAINT_VIOLATION");
+  }
+
+  private String resolveCode(String code) {
+    try {
+      return messageSource.getMessage(code + ".code", EMPTY_ARRAY, Locale.ENGLISH);
+    } catch (NoSuchMessageException e) {
+      return null;
+    }
   }
 }

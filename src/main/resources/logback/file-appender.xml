@@ -10,12 +10,12 @@ File appender logback configuration provided for import. This appender is for ap
         <!-- See http://logback.qos.ch/manual/appenders.html#RollingFileAppender -->
         <!-- and http://logback.qos.ch/manual/appenders.html#TimeBasedRollingPolicy -->
         <!-- for further documentation -->
-        <file>${catalina.base}/logs/${app.artifactId}.log</file>
+        <file>${catalina.base:-.}/logs/${app.artifactId}.log</file>
         <encoder>
             <pattern>%d{dd-MMM-yyyy HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${catalina.base}/logs/${app.artifactId}-%d.log</fileNamePattern>
+            <fileNamePattern>${catalina.base:-.}/logs/${app.artifactId}-%d.log</fileNamePattern>
         </rollingPolicy>
     </appender>
 

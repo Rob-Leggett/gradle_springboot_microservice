@@ -4,7 +4,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DefaultMessageCodesResolver;
 
-import javax.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolation;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;

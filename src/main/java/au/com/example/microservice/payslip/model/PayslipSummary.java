@@ -2,6 +2,8 @@ package au.com.example.microservice.payslip.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 
 import java.time.Month;
 
@@ -12,6 +14,8 @@ public class PayslipSummary {
   private Employee employee;
 
   @JsonProperty(value = "month")
+  // Jackson 3 serializes java.time.Month as a number by default; keep the month name in the API.
+  @JsonSerialize(using = ToStringSerializer.class)
   private Month month;
 
   @JsonProperty(value = "salary")

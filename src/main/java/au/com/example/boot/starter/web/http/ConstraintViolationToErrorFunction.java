@@ -2,7 +2,7 @@ package au.com.example.boot.starter.web.http;
 
 import org.springframework.validation.MessageCodesResolver;
 
-import javax.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.UUID;

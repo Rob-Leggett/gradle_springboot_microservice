@@ -1,11 +1,10 @@
 package au.com.example.microservice.framework
 
-import groovyx.net.http.HTTPBuilder
-import groovyx.net.http.HttpResponseException
-import groovyx.net.http.Method
-import groovyx.net.http.RESTClient
-import org.apache.http.entity.mime.MultipartEntityBuilder
-import org.apache.http.entity.mime.content.ByteArrayBody
+import groovy.json.JsonSlurper
+
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
 
 trait HttpTrait {
     def uri
@@ -14,7 +13,7 @@ trait HttpTrait {
     def header
 
     def setUri(endpoint) {
-        uri = endpoint;
+        uri = endpoint
     }
 
     def getStatus() {
@@ -29,46 +28,43 @@ trait HttpTrait {
         header
     }
 
-    def post(path, headers, body, contentType) {
-        try {
-            def response = new RESTClient(uri).post(
-                    path: path,
-                    headers: headers,
-                    body: body,
-                    requestContentType: contentType
-            )
-            status = response.status
-            data = response.data
-            header = response.headers
-        } catch (HttpResponseException e) {
-            status = e.getStatusCode()
-            data = e.getResponse().getData()
-        }
+    def send(HttpRequest request) {
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString())
+        status = response.statusCode()
+        header = response.headers().map()
+        def responseContentType = response.headers().firstValue('Content-Type').orElse('')
+        data = responseContentType.contains('json') && response.body() ? new JsonSlurper().parseText(response.body()) : response.body()
     }
 
-    def multipart(path, contentType, file) {
+    def get(path) {
+        send(HttpRequest.newBuilder(URI.create("${uri}${path}"))
+                .header('Accept', 'application/json')
+                .GET()
+                .build())
+    }
 
-        def http = new HTTPBuilder(uri + path)
+    def post(path, headers, body, contentType) {
+        def builder = HttpRequest.newBuilder(URI.create("${uri}${path}"))
+                .header('Content-Type', contentType as String)
+                .header('Accept', 'application/json')
+                .POST(HttpRequest.BodyPublishers.ofString(body as String))
+        headers?.each { k, v -> builder.header(k as String, v as String) }
+        send(builder.build())
+    }
 
-        http.handler.success = { resp, body ->
-            status = resp.status
-            data = body
-            header = resp.headers
-        }
+    def multipart(path, file) {
+        def boundary = "----spock-${UUID.randomUUID()}"
+        def bytes = new ByteArrayOutputStream()
+        bytes << "--${boundary}\r\n"
+        bytes << "Content-Disposition: form-data; name=\"file\"; filename=\"${file.getOriginalFilename()}\"\r\n"
+        bytes << "Content-Type: ${file.getContentType()}\r\n\r\n"
+        bytes << file.getBytes()
+        bytes << "\r\n--${boundary}--\r\n"
 
-        http.handler.failure = { resp, body ->
-            status = resp.status
-            data = body
-        }
-
-        http.request(Method.POST) { request ->
-
-            def multipartEntityBuilder = MultipartEntityBuilder.create()
-
-            multipartEntityBuilder.addPart("file", new ByteArrayBody(file.getBytes(), file.getContentType(), file.getName()))
-
-            request.setEntity(multipartEntityBuilder.build())
-        }
+        send(HttpRequest.newBuilder(URI.create("${uri}${path}"))
+                .header('Content-Type', "multipart/form-data; boundary=${boundary}")
+                .POST(HttpRequest.BodyPublishers.ofByteArray(bytes.toByteArray()))
+                .build())
     }
 
     def payslipSummary(body) {
@@ -85,7 +81,6 @@ trait HttpTrait {
 
     def payslipSummariesBatch(file) {
         def path = 'payslip/monthly/summaries/batch'
-        def contentType = 'multipart/form-data'
-        multipart(path, contentType, file)
+        multipart(path, file)
     }
 }

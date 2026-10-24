@@ -2,9 +2,11 @@ package au.com.example.microservice.payslip.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.time.Month;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -17,6 +19,8 @@ public class IncomeSummary {
 
   @Valid
   @JsonProperty(value = "month")
+  // Jackson 3 serializes java.time.Month as a number by default; keep the month name in the API.
+  @JsonSerialize(using = ToStringSerializer.class)
   @NotNull(message = "{error.month.notnull}")
   private Month month;
 
